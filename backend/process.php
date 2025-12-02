@@ -36,6 +36,6 @@ if (isset($_REQUEST['action'])) {
     }
 }
 
-header("Location: http://deloyfe.somee.com/index.php?status=success");
+header("Location: http://deloyfe.somee.com/index.html?status=success");
 exit();
 ?>

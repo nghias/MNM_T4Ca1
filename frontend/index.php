@@ -1,6 +1,5 @@
 <?php
 session_start();
-// Nếu chưa có danh sách, tạo mảng rỗng để tránh lỗi
 if (!isset($_SESSION['contacts'])) {
     $_SESSION['contacts'] = [];
 }

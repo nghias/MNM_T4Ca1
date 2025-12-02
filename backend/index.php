@@ -9,7 +9,7 @@ if (!isset($_SESSION['contacts'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Liên hệ (Tách File)</title>
+    <title>Quản lý Liên hệ</title>
     <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -20,7 +20,7 @@ if (!isset($_SESSION['contacts'])) {
     
     <nav class="navbar navbar-dark bg-primary mb-4">
         <div class="container">
-            <a class="navbar-brand" href="#">Demo PHP Tách File</a>
+            <a class="navbar-brand" href="#">Quản lý Liên hệ</a>
         </div>
     </nav>
 

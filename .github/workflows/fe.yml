@@ -23,5 +23,5 @@ jobs:
           username: ${{ secrets.SOMEE_FTP_USERNAME }}
           password: ${{ secrets.SOMEE_FTP_PASSWORD }}
           local-dir: ./frontend/
-          # Somee thường yêu cầu đường dẫn dạng /www.tenmien.somee.com/
+          # Đã sửa dòng này theo đúng ảnh Somee của bạn
           server-dir: /www.deloyfe.somee.com/

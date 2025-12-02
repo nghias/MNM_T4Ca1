@@ -36,6 +36,6 @@ if (isset($_REQUEST['action'])) {
     }
 }
 
-header("Location: http://mnm-t4ca1.free.nf/index.php?status=success");
+header("Location: https://mnm-t4ca1.free.nf/index.php?status=success");
 exit();
 ?>

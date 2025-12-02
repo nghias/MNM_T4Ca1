@@ -40,7 +40,7 @@ if (!isset($_SESSION['contacts'])) {
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white fw-bold">Thêm Liên Hệ</div>
                     <div class="card-body">
-                        <form action="http://mnm-t4ca1.free.nf/process.php" method="POST">
+                        <form action="https://mnm-t4ca1.free.nf/process.php" method="POST">
                             
                             <input type="hidden" name="action" value="add">
                             

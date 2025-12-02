@@ -27,7 +27,7 @@ if (!isset($_SESSION['contacts'])) {
             <div class="alert alert-success alert-dismissible fade show">
                 <?php 
                     echo $_SESSION['message']; 
-                    unset($_SESSION['message']); // Xóa thông báo sau khi hiện
+                    unset($_SESSION['message']); 
                 ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>

@@ -24,6 +24,6 @@ jobs:
           password: ${{ secrets.IF_FTP_PASSWORD }}
           local-dir: ./backend/
           # InfinityFree bắt buộc code phải nằm trong thư mục htdocs
-          server-dir: /htdocs/api/  
+          server-dir: /htdocs/  
           # Lưu ý: InfinityFree hay chặn IP của GitHub Actions. 
           # Nếu upload thất bại, bạn có thể cần thử lại hoặc dùng hosting khác.

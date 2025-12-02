@@ -24,4 +24,4 @@ jobs:
           password: ${{ secrets.SOMEE_FTP_PASSWORD }}
           local-dir: ./frontend/
           # Đã sửa dòng này theo đúng ảnh Somee của bạn
-          server-dir: /
+          server-dir: /www.deloyfe.somee.com/

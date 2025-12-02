@@ -33,7 +33,6 @@ if (!isset($_SESSION['contacts'])) {
         <?php endif; ?>
 
         <div class="row">
-            <!-- Form Nhập Liệu -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white fw-bold">Thêm Liên Hệ</div>

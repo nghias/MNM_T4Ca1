@@ -23,7 +23,6 @@ if (!isset($_SESSION['contacts'])) {
     </nav>
 
     <div class="container">
-        <!-- Hiển thị thông báo nếu có -->
         <?php if (isset($_SESSION['message'])): ?>
             <div class="alert alert-success alert-dismissible fade show">
                 <?php 

@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - 'frontend/**'  # Chỉ chạy khi folder frontend thay đổi
+      - 'frontend/**'
 
 jobs:
   deploy-fe:
@@ -19,9 +19,9 @@ jobs:
       - name: 🚀 Upload lên Somee qua FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.SOMEE_FTP_SERVER }}
+          # Đảm bảo dùng biến SOMEE (không phải IF)
+          server: ${{ secrets.SOMEE_FTP_SERVER }} 
           username: ${{ secrets.SOMEE_FTP_USERNAME }}
           password: ${{ secrets.SOMEE_FTP_PASSWORD }}
           local-dir: ./frontend/
-          # Đã sửa dòng này theo đúng ảnh Somee của bạn
           server-dir: /www.deloyfe.somee.com/

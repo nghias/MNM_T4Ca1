@@ -1,4 +1,7 @@
 <?php
+header("Access-Control-Allow-Origin: *"); // Cho phép tất cả các trang web truy cập
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Cho phép các phương thức gửi dữ liệu
+header("Access-Control-Allow-Headers: Content-Type")
 // Kết nối Database
 $conn = new mysqli("sql100.infinityfree.com", "if0_40577807", "Nghia13052004", "if0_40577807_qltro");
 if ($conn->connect_error) die("Kết nối thất bại: " . $conn->connect_error);

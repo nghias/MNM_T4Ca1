@@ -3,133 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Phòng Trọ</title>
+    <title>Quản Lý Sản Phẩm (Somee + Render)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; padding-top: 50px; }
+        .card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    </style>
 </head>
-<body class="container mt-4">
-
-<h2 class="text-center mb-4">Quản Lý Phòng Trọ</h2>
-
-<button class="btn btn-primary mb-3" onclick="openModal()">
-    <i class="bi bi-plus-circle"></i> Thêm Phòng Mới
-</button>
-
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Mã</th>
-            <th>Tên Phòng</th>
-            <th>Diện Tích</th>
-            <th>Giá</th>
-        </tr>
-    </thead>
-    <tbody id="table-body"></tbody>
-</table>
-
-<!-- MODAL -->
-<div class="modal fade" id="phongModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Thêm Phòng</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Tên Phòng</label>
-                    <input type="text" id="tenPhong" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Diện Tích</label>
-                    <input type="number" id="dienTich" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Giá</label>
-                    <input type="number" id="giaPhong" class="form-control">
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4 text-primary">📦 Quản Lý Kho Hàng</h1>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h4>Thêm Sản Phẩm</h4>
+                    <div class="mb-3">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="name" class="form-control" placeholder="Ví dụ: Laptop Dell">
+                    </div>
+                    <div class="mb-3">
+                        <label>Giá ($)</label>
+                        <input type="number" id="price" class="form-control" placeholder="1000">
+                    </div>
+                    <div class="mb-3">
+                        <label>Mô tả</label>
+                        <textarea id="desc" class="form-control" placeholder="Mô tả ngắn..."></textarea>
+                    </div>
+                    <button onclick="addProduct()" class="btn btn-success w-100">Thêm Mới</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <button class="btn btn-primary" onclick="saveData()">Lưu</button>
+
+            <div class="col-md-8">
+                <div class="card p-3">
+                    <h4>Danh Sách Hiện Có</h4>
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Giá</th>
+                                <th>Mô tả</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTable">
+                            <tr><td colspan="3" class="text-center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // QUAN TRỌNG: Thay đường dẫn này bằng URL Backend Render của bạn sau khi deploy xong
+        const API_URL = 'https://tên-app-của-bạn.onrender.com/api/products';
 
-<script>
-const apiUrl = 'https://mnm-t4ca1.free.nf/process.php';
-const myModal = new bootstrap.Modal(document.getElementById('phongModal'));
+        // Hàm lấy danh sách
+        async function loadProducts() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                
+                const tableBody = document.getElementById('productTable');
+                if(data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="3" class="text-center">Chưa có sản phẩm nào</td></tr>';
+                    return;
+                }
 
-// ===== LOAD DATA (GET) =====
-function loadData() {
-    fetch(apiUrl)
-        .then(res => res.json())
-        .then(data => {
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có dữ liệu</td></tr>';
-                return;
-            }
-
-            data.forEach(p => {
-                tbody.innerHTML += `
+                tableBody.innerHTML = data.map(p => `
                     <tr>
-                        <td>${p.MaPhong}</td>
-                        <td>${p.Ten}</td>
-                        <td>${p.DienTich}</td>
-                        <td>${Number(p.Gia).toLocaleString()} đ</td>
+                        <td><strong>${p.name}</strong></td>
+                        <td class="text-danger fw-bold">$${p.price}</td>
+                        <td>${p.description || '-'}</td>
                     </tr>
-                `;
-            });
-        })
-        .catch(err => alert("Lỗi tải dữ liệu"));
-}
+                `).join('');
+            } catch (error) {
+                console.error(error);
+                document.getElementById('productTable').innerHTML = '<tr><td colspan="3" class="text-danger text-center">Lỗi kết nối Server!</td></tr>';
+            }
+        }
 
-// ===== MỞ MODAL =====
-function openModal() {
-    document.getElementById('tenPhong').value = '';
-    document.getElementById('dienTich').value = '';
-    document.getElementById('giaPhong').value = '';
-    myModal.show();
-}
+        // Hàm thêm sản phẩm
+        async function addProduct() {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const description = document.getElementById('desc').value;
 
-// ===== THÊM (POST – SIMPLE REQUEST) =====
-function saveData() {
-    const ten = document.getElementById('tenPhong').value;
-    const dt  = document.getElementById('dienTich').value;
-    const gia = document.getElementById('giaPhong').value;
+            if(!name || !price) return alert("Vui lòng nhập tên và giá!");
 
-    if (!ten || !gia) {
-        alert("Vui lòng nhập đầy đủ dữ liệu");
-        return;
-    }
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, description })
+                });
 
-    const formData = new URLSearchParams();
-    formData.append("Ten", ten);
-    formData.append("DienTich", dt);
-    formData.append("Gia", gia);
+                if(res.ok) {
+                    alert("Thêm thành công!");
+                    document.getElementById('name').value = '';
+                    document.getElementById('price').value = '';
+                    document.getElementById('desc').value = '';
+                    loadProducts(); // Load lại bảng
+                }
+            } catch (error) {
+                alert("Lỗi khi thêm sản phẩm");
+            }
+        }
 
-    fetch(apiUrl, {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(res => {
-        alert(res.message);
-        myModal.hide();
-        loadData();
-    })
-    .catch(err => alert("Lỗi thêm dữ liệu"));
-}
-
-// LOAD LẦN ĐẦU
-loadData();
-</script>
-
+        // Chạy khi mở web
+        loadProducts();
+    </script>
 </body>
 </html>

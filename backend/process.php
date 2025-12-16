@@ -1,41 +1,53 @@
 <?php
-session_start();
+// Kết nối Database
+$conn = new mysqli("sql100.infinityfree.com", "if0_40577807", "Nghia13052004", "if0_40577807_qltro");
+if ($conn->connect_error) die("Kết nối thất bại: " . $conn->connect_error);
+$conn->set_charset("utf8");
 
-// Kiểm tra xem có yêu cầu gửi đến không
-if (isset($_REQUEST['action'])) {
-    $action = $_REQUEST['action'];
-
-    // 1. Xử lý THÊM MỚI
-    if ($action == 'add' && $_SERVER['REQUEST_METHOD'] == 'POST') {
-        $name = $_POST['fullname'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-
-        if (!empty($name) && !empty($email)) {
-            $new_contact = [
-                'name' => $name,
-                'email' => $email,
-                'phone' => $phone
-            ];
-            
-            $_SESSION['contacts'][] = $new_contact;
-            $_SESSION['message'] = "Đã thêm mới thành công!";
-        }
+// --- API TRẢ VỀ DỮ LIỆU (CHO FILE HTML DÙNG JS LẤY) ---
+if (isset($_GET['action']) && $_GET['action'] == 'read') {
+    $result = $conn->query("SELECT * FROM phong");
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
     }
-
-    // 2. Xử lý XÓA
-    if ($action == 'delete' && isset($_GET['index'])) {
-        $index = $_GET['index'];
-        
-        if (isset($_SESSION['contacts'][$index])) {
-            unset($_SESSION['contacts'][$index]);
-            // Sắp xếp lại chỉ mục mảng (để không bị lủng số 0, 1, 3...)
-            $_SESSION['contacts'] = array_values($_SESSION['contacts']);
-            $_SESSION['message'] = "Đã xóa liên hệ thành công!";
-        }
-    }
+    echo json_encode($data); // Trả về dạng JSON
+    exit();
 }
 
-header("Location: https://mnm-t4ca1.free.nf/index.php?status=success");
-exit();
+// --- XỬ LÝ FORM (THÊM / SỬA) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $kieuTacVu = $_POST['formAction']; // 'add' hoặc 'edit'
+    $maPhong = $_POST['MaPhong'];
+    $ten = $_POST['Ten'];
+    $gia = $_POST['Gia'];
+    $dienTich = $_POST['DienTich'];
+
+    if ($kieuTacVu == 'add') {
+        $stmt = $conn->prepare("INSERT INTO phong (MaPhong, Ten, Gia, DienTich, HinhAnh) VALUES (?, ?, ?, ?, 'logo.png')");
+        $stmt->bind_param("ssdd", $maPhong, $ten, $gia, $dienTich);
+        $stmt->execute();
+    } elseif ($kieuTacVu == 'edit') {
+        $stmt = $conn->prepare("UPDATE phong SET Ten=?, Gia=?, DienTich=? WHERE MaPhong=?");
+        $stmt->bind_param("sdds", $ten, $gia, $dienTich, $maPhong);
+        $stmt->execute();
+    }
+    
+    // Xử lý xong quay về file html
+    header("Location: http://deloyfe.somee.com/index.html");
+    exit();
+}
+
+// --- XỬ LÝ XÓA ---
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    $stmt = $conn->prepare("DELETE FROM phong WHERE MaPhong=?");
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    
+    header("Location: http://deloyfe.somee.com/index.html");
+    exit();
+}
+
+$conn->close();
 ?>

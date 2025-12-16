@@ -3,175 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Phòng Trọ Full</title>
+    <title>Quản Lý Phòng Trọ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body class="container mt-4">
 
-    <h2 class="text-center mb-4">Quản Lý Phòng Trọ</h2>
+<h2 class="text-center mb-4">Quản Lý Phòng Trọ</h2>
 
-    <button class="btn btn-primary mb-3" onclick="openModal('add')">
-        <i class="bi bi-plus-circle"></i> Thêm Phòng Mới
-    </button>
-    
-    <div id="alert-msg"></div>
+<button class="btn btn-primary mb-3" onclick="openModal()">
+    <i class="bi bi-plus-circle"></i> Thêm Phòng Mới
+</button>
 
-    <table class="table table-bordered table-striped shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Mã</th>
-                <th>Tên Phòng</th>
-                <th>Diện Tích</th>
-                <th>Giá</th>
-                <th style="width: 150px;">Hành động</th>
-            </tr>
-        </thead>
-        <tbody id="table-body">
-            </tbody>
-    </table>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Mã</th>
+            <th>Tên Phòng</th>
+            <th>Diện Tích</th>
+            <th>Giá</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
 
-    <div class="modal fade" id="phongModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">Thông tin phòng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- MODAL -->
+<div class="modal fade" id="phongModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Phòng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên Phòng</label>
+                    <input type="text" id="tenPhong" class="form-control">
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="maPhong">
-                    <div class="mb-3">
-                        <label class="form-label">Tên Phòng</label>
-                        <input type="text" class="form-control" id="tenPhong">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Diện Tích (m2)</label>
-                        <input type="number" class="form-control" id="dienTich">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Giá (VND)</label>
-                        <input type="number" class="form-control" id="giaPhong">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Diện Tích</label>
+                    <input type="number" id="dienTich" class="form-control">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" onclick="saveData()">Lưu</button>
+                <div class="mb-3">
+                    <label class="form-label">Giá</label>
+                    <input type="number" id="giaPhong" class="form-control">
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button class="btn btn-primary" onclick="saveData()">Lưu</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        const apiUrl = 'https://mnm-t4ca1.free.nf/process.php';
-        let currentMode = 'add'; // 'add' hoặc 'edit'
-        const myModal = new bootstrap.Modal(document.getElementById('phongModal'));
+<script>
+const apiUrl = 'https://mnm-t4ca1.free.nf/process.php';
+const myModal = new bootstrap.Modal(document.getElementById('phongModal'));
 
-        // 1. Hàm lấy danh sách (READ)
-        function loadData() {
-            fetch(apiUrl)
-                .then(res => res.json())
-                .then(data => {
-                    const tbody = document.getElementById('table-body');
-                    tbody.innerHTML = '';
-                    if(data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Không có dữ liệu</td></tr>';
-                        return;
-                    }
-                    data.forEach(p => {
-                        const row = `
-                            <tr>
-                                <td>${p.MaPhong}</td>
-                                <td>${p.Ten}</td>
-                                <td>${p.DienTich} m²</td>
-                                <td>${Number(p.Gia).toLocaleString()} đ</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" onclick="openEdit(${p.MaPhong}, '${p.Ten}', ${p.DienTich}, ${p.Gia})">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deletePhong(${p.MaPhong})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += row;
-                    });
-                })
-                .catch(err => console.error("Lỗi tải trang:", err));
-        }
+// ===== LOAD DATA (GET) =====
+function loadData() {
+    fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
 
-        // 2. Mở modal (Thêm hoặc Sửa)
-        function openModal(mode) {
-            currentMode = mode;
-            if (mode === 'add') {
-                document.getElementById('modalTitle').innerText = "Thêm Phòng Mới";
-                document.getElementById('maPhong').value = '';
-                document.getElementById('tenPhong').value = '';
-                document.getElementById('dienTich').value = '';
-                document.getElementById('giaPhong').value = '';
-            }
-            myModal.show();
-        }
-
-        function openEdit(id, ten, dt, gia) {
-            openModal('edit');
-            document.getElementById('modalTitle').innerText = "Sửa Thông Tin Phòng";
-            document.getElementById('maPhong').value = id;
-            document.getElementById('tenPhong').value = ten;
-            document.getElementById('dienTich').value = dt;
-            document.getElementById('giaPhong').value = gia;
-        }
-
-        // 3. Hàm Lưu (Xử lý cho cả Thêm và Sửa)
-        function saveData() {
-            const id = document.getElementById('maPhong').value;
-            const data = {
-                Ten: document.getElementById('tenPhong').value,
-                DienTich: document.getElementById('dienTich').value,
-                Gia: document.getElementById('giaPhong').value
-            };
-
-            let method = 'POST'; // Mặc định là Thêm
-            if (currentMode === 'edit') {
-                method = 'PUT'; // Nếu sửa thì dùng PUT
-                data.MaPhong = id;
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Không có dữ liệu</td></tr>';
+                return;
             }
 
-            fetch(apiUrl, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(res => {
-                myModal.hide();
-                loadData(); // Tải lại bảng
-                alert(res.message);
-            })
-            .catch(err => alert("Lỗi kết nối: " + err));
-        }
+            data.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.MaPhong}</td>
+                        <td>${p.Ten}</td>
+                        <td>${p.DienTich}</td>
+                        <td>${Number(p.Gia).toLocaleString()} đ</td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => alert("Lỗi tải dữ liệu"));
+}
 
-        // 4. Hàm Xóa (DELETE)
-        function deletePhong(id) {
-            if (!confirm('Bạn có chắc muốn xóa phòng này không?')) return;
+// ===== MỞ MODAL =====
+function openModal() {
+    document.getElementById('tenPhong').value = '';
+    document.getElementById('dienTich').value = '';
+    document.getElementById('giaPhong').value = '';
+    myModal.show();
+}
 
-            fetch(apiUrl, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ MaPhong: id })
-            })
-            .then(res => res.json())
-            .then(res => {
-                loadData();
-                alert(res.message);
-            })
-            .catch(err => alert("Lỗi khi xóa: " + err));
-        }
+// ===== THÊM (POST – SIMPLE REQUEST) =====
+function saveData() {
+    const ten = document.getElementById('tenPhong').value;
+    const dt  = document.getElementById('dienTich').value;
+    const gia = document.getElementById('giaPhong').value;
 
-        // Chạy lần đầu
+    if (!ten || !gia) {
+        alert("Vui lòng nhập đầy đủ dữ liệu");
+        return;
+    }
+
+    const formData = new URLSearchParams();
+    formData.append("Ten", ten);
+    formData.append("DienTich", dt);
+    formData.append("Gia", gia);
+
+    fetch(apiUrl, {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        alert(res.message);
+        myModal.hide();
         loadData();
-    </script>
+    })
+    .catch(err => alert("Lỗi thêm dữ liệu"));
+}
+
+// LOAD LẦN ĐẦU
+loadData();
+</script>
+
 </body>
 </html>

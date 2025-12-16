@@ -1,11 +1,10 @@
-name: Deploy Frontend to Vercel
+name: Deploy Frontend to Vercel (CLI)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
     paths:
-      - 'frontend/**' # Chỉ chạy khi có thay đổi trong thư mục frontend
+      - 'frontend/**'
 
 jobs:
   deploy:
@@ -14,11 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Cài đặt Vercel CLI mới nhất trực tiếp từ NPM
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Lệnh deploy thủ công (Bỏ qua build step lỗi)
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod' # Deploy bản Production
-          working-directory: ./frontend # Quan trọng: Trỏ đúng vào thư mục code web
+        working-directory: ./frontend
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          # --prod: Deploy bản thật
+          # --yes: Tự động đồng ý (không cần người bấm Y)
+          # --no-wait: Không cần chờ build xong (để tránh timeout trên Github)
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes

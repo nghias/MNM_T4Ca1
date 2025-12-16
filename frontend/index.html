@@ -3,50 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Phòng (HTML thuần)</title>
+    <title>Quản Lý Phòng (Somee Frontend)</title>
     <style>
         body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
         .form-group { margin-bottom: 10px; }
-        label { display: inline-block; width: 100px; }
-        input { padding: 5px; width: 200px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        button { cursor: pointer; padding: 5px 10px; }
-        .btn-edit { background-color: #ffc107; border: none; }
-        .btn-delete { background-color: #dc3545; color: white; border: none; }
-        .btn-submit { background-color: #28a745; color: white; border: none; padding: 10px 20px; }
+        label { display: inline-block; width: 100px; font-weight: bold; }
+        input { padding: 8px; width: 250px; border: 1px solid #ccc; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        button { cursor: pointer; padding: 8px 15px; border-radius: 4px; font-size: 14px; }
+        .btn-edit { background-color: #ffc107; border: none; color: #000; }
+        .btn-delete { background-color: #dc3545; color: white; border: none; margin-left: 5px; }
+        .btn-submit { background-color: #28a745; color: white; border: none; padding: 10px 20px; font-size: 16px; }
+        .loading { text-align: center; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <h2>Quản Lý Phòng</h2>
+    <h2 style="text-align: center; color: #333;">Quản Lý Phòng Trọ</h2>
 
-    <form action="https://mnm-t4ca1.free.nf/process.php" method="POST" id="roomForm">
+    <form action="https://mnm-t4ca1.free.nf/process.php" method="POST" id="roomForm" style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
         <input type="hidden" name="formAction" id="formAction" value="add">
 
         <div class="form-group">
             <label>Mã Phòng:</label>
-            <input type="text" name="MaPhong" id="MaPhong" required>
+            <input type="text" name="MaPhong" id="MaPhong" required placeholder="Ví dụ: P101">
         </div>
         <div class="form-group">
             <label>Tên Phòng:</label>
-            <input type="text" name="Ten" id="Ten" required>
+            <input type="text" name="Ten" id="Ten" required placeholder="Phòng Vip 1">
         </div>
         <div class="form-group">
-            <label>Giá:</label>
-            <input type="number" name="Gia" id="Gia" required>
+            <label>Giá (VNĐ):</label>
+            <input type="number" name="Gia" id="Gia" required placeholder="Nhập số tiền">
         </div>
         <div class="form-group">
-            <label>Diện Tích:</label>
-            <input type="number" step="0.1" name="DienTich" id="DienTich" required>
+            <label>Diện Tích (m²):</label>
+            <input type="number" step="0.1" name="DienTich" id="DienTich" required placeholder="Nhập diện tích">
         </div>
         
-        <button type="submit" class="btn-submit" id="submitBtn">Thêm Mới</button>
-        <button type="button" onclick="resetForm()" style="background:#ccc; border:none;">Nhập lại</button>
+        <div style="margin-top: 15px;">
+            <button type="submit" class="btn-submit" id="submitBtn">Thêm Mới</button>
+            <button type="button" onclick="resetForm()" style="background:#6c757d; color:white; border:none; margin-left: 10px;">Nhập lại</button>
+        </div>
     </form>
 
-    <h3>Danh sách phòng</h3>
+    <h3>Danh sách phòng hiện có</h3>
     <table>
         <thead>
             <tr>
@@ -54,53 +57,91 @@
                 <th>Tên</th>
                 <th>Giá</th>
                 <th>Diện Tích</th>
-                <th>Hành động</th>
+                <th style="width: 150px;">Hành động</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            </tbody>
+            <tr><td colspan="5" class="loading">Đang tải dữ liệu từ server...</td></tr>
+        </tbody>
     </table>
 
     <script>
-        // Khi trang web tải xong, gọi hàm lấy dữ liệu
+        // CẤU HÌNH API URL
+        const API_URL = 'https://mnm-t4ca1.free.nf/process.php';
+
+        // 1. Khi trang web tải xong, gọi hàm lấy dữ liệu
         document.addEventListener('DOMContentLoaded', loadRooms);
 
-        // Hàm lấy dữ liệu từ process.php bằng FETCH API
+        // 2. Hàm lấy dữ liệu (READ)
         function loadRooms() {
-            fetch('https://mnm-t4ca1.free.nf/process.php?action=read')
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById('tableBody');
-                    tableBody.innerHTML = ''; // Xóa trắng bảng cũ
+            fetch(`${API_URL}?action=read`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' // QUAN TRỌNG: Để InfinityFree chấp nhận request
+            })
+            .then(response => {
+                if (!response.ok) { throw new Error("Lỗi kết nối server (Kiểm tra lại process.php)"); }
+                return response.json();
+            })
+            .then(data => {
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = ''; // Xóa trắng bảng cũ
 
-                    if (data.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="5">Chưa có dữ liệu</td></tr>';
-                        return;
-                    }
+                if (!Array.isArray(data) || data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa có dữ liệu</td></tr>';
+                    return;
+                }
 
-                    data.forEach(room => {
-                        const row = `
-                            <tr>
-                                <td>${room.MaPhong}</td>
-                                <td>${room.Ten}</td>
-                                <td>${new Intl.NumberFormat('vi-VN').format(room.Gia)} đ</td>
-                                <td>${room.DienTich} m²</td>
-                                <td>
-                                    <button class="btn-edit" onclick='fillForm(${JSON.stringify(room)})'>Sửa</button>
-                                    <a href="https://mnm-t4ca1.free.nf/process.php?delete=${room.MaPhong}" onclick="return confirm('Xóa phòng này?')" class="btn-delete" style="text-decoration:none; display:inline-block; font-size:13.33px; padding: 5px 10px;">Xóa</a>
-                                </td>
-                            </tr>
-                        `;
-                        tableBody.innerHTML += row;
-                    });
-                })
-                .catch(error => console.error('Lỗi:', error));
+                data.forEach(room => {
+                    const row = `
+                        <tr>
+                            <td>${room.MaPhong}</td>
+                            <td>${room.Ten}</td>
+                            <td>${new Intl.NumberFormat('vi-VN').format(room.Gia)} đ</td>
+                            <td>${room.DienTich} m²</td>
+                            <td>
+                                <button class="btn-edit" onclick='fillForm(${JSON.stringify(room)})'>Sửa</button>
+                                <button class="btn-delete" onclick="deleteRoom('${room.MaPhong}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                document.getElementById('tableBody').innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Lỗi tải dữ liệu: ${error.message}<br><small>Hãy chắc chắn bạn đã cấu hình Header CORS trong file PHP</small></td></tr>`;
+            });
         }
 
-        // Hàm điền dữ liệu vào form khi bấm Sửa
+        // 3. Hàm Xóa phòng (DELETE)
+        function deleteRoom(maPhong) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa phòng [${maPhong}] không?`)) return;
+
+            fetch(`${API_URL}?delete=${maPhong}`, {
+                method: 'GET', // Backend PHP đang hứng $_GET['delete']
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Xóa thành công!');
+                    loadRooms(); // Tải lại danh sách ngay lập tức
+                } else {
+                    alert('Lỗi khi xóa phòng!');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi xóa:', error);
+                alert('Không thể kết nối tới server để xóa.');
+            });
+        }
+
+        // 4. Hàm điền dữ liệu vào form khi bấm Sửa
         function fillForm(room) {
             document.getElementById('MaPhong').value = room.MaPhong;
-            document.getElementById('MaPhong').readOnly = true; // Không cho sửa mã khi update
+            document.getElementById('MaPhong').readOnly = true; // Không cho sửa mã
             document.getElementById('MaPhong').style.backgroundColor = "#e9ecef";
 
             document.getElementById('Ten').value = room.Ten;
@@ -110,19 +151,21 @@
             // Đổi trạng thái form sang Edit
             document.getElementById('formAction').value = 'edit';
             document.getElementById('submitBtn').innerText = 'Cập nhật';
-            document.getElementById('submitBtn').style.backgroundColor = "#ffc107";
-            document.getElementById('submitBtn').style.color = "#000";
+            document.getElementById('submitBtn').className = "btn-submit btn-edit"; // Đổi màu nút
+            
+            // Cuộn trang lên form
+            document.getElementById('roomForm').scrollIntoView({behavior: "smooth"});
         }
 
-        // Hàm reset form về trạng thái thêm mới
+        // 5. Hàm reset form về trạng thái thêm mới
         function resetForm() {
             document.getElementById('roomForm').reset();
             document.getElementById('MaPhong').readOnly = false;
             document.getElementById('MaPhong').style.backgroundColor = "white";
+            
             document.getElementById('formAction').value = 'add';
             document.getElementById('submitBtn').innerText = 'Thêm Mới';
-            document.getElementById('submitBtn').style.backgroundColor = "#28a745";
-            document.getElementById('submitBtn').style.color = "white";
+            document.getElementById('submitBtn').className = "btn-submit"; // Trả lại màu xanh
         }
     </script>
 

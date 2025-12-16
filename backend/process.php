@@ -1,8 +1,17 @@
 <?php
-header("Access-Control-Allow-Origin: *"); // Cho phép tất cả các trang web truy cập
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Cho phép các phương thức gửi dữ liệu
-header("Access-Control-Allow-Headers: Content-Type")
-// Kết nối Database
+// Thay dòng này bằng đúng địa chỉ trang web FE của bạn trên somee (không có dấu / ở cuối)
+$allowed_origin = "http://deloyfe.somee.com"; 
+
+header("Access-Control-Allow-Origin: $allowed_origin");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true"); // Quan trọng: Cho phép gửi cookie/xác thực
+
+// Xử lý Preflight Request (bước kiểm tra của trình duyệt trước khi gửi dữ liệu thật)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 $conn = new mysqli("sql100.infinityfree.com", "if0_40577807", "Nghia13052004", "if0_40577807_qltro");
 if ($conn->connect_error) die("Kết nối thất bại: " . $conn->connect_error);
 $conn->set_charset("utf8");

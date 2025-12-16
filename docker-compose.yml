@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Service Backend
+  be:
+    build: ./backend
+    container_name: mnm_backend
+    ports:
+      - "3000:3000" # Sửa port này nếu trong index.js bạn dùng port khác
+    environment:
+      - PORT=3000
+    # Nếu bạn muốn map file .env từ ngoài vào trong:
+    env_file:
+      - ./backend/.env
+
+  # Service Frontend
+  fe:
+    build: ./frontend
+    container_name: mnm_frontend
+    ports:
+      - "8080:80" # Truy cập web bằng localhost:8080
+    depends_on:
+      - be

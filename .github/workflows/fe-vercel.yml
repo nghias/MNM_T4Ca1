@@ -28,8 +28,4 @@ jobs:
           # --prod: Deploy bản thật
           # --yes: Tự động đồng ý (không cần người bấm Y)
           # --no-wait: Không cần chờ build xong (để tránh timeout trên Github)
-<<<<<<< HEAD
           vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-=======
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
->>>>>>> 6fb2320e2b26952dad02abcb75fe879678cd0645

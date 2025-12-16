@@ -2,14 +2,13 @@
 // ===== CORS (simple request) =====
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-
 // ===== KẾT NỐI DATABASE =====
-$servername = "sql100.infinityfree.com";
-$username   = "if0_40577807";
-$password   = "Nghia13052004";
-$dbname     = "if0_40577807_qltro";
+$servername = "gateway01.ap-southeast-1.prod.aws.tidbcloud.com";
+$username   = "4MoqUaUd1wnWMGN.root";
+$password   = "EeQm8Gx6DWUidjQi";
+$dbname     = "test";
 
-$conn = new mysqli($servername, $username, $password, $dbname, 3306);
+$conn = new mysqli($servername, $username, $password, $dbname, 4000);
 $conn->set_charset("utf8");
 
 if ($conn->connect_error) {

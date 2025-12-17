@@ -29,4 +29,4 @@ jobs:
           # --yes: Tự động đồng ý (không cần người bấm Y)
           # --no-wait: Không cần chờ build xong (để tránh timeout trên Github)
 
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --archive=tgz
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes

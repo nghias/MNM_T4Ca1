@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(cors({ origin: '*' }));
 
 // --- KẾT NỐI MONGODB ---
+// daf
 // Sẽ lấy link kết nối từ file .env hoặc biến môi trường trên Render
 const mongoURI = process.env.MONGO_URI;
 
